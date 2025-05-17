@@ -249,7 +249,7 @@ class PostRoutes(BaseRouter):
         resume_url: Optional[str] = None
         message: Optional[str] = None
         status: Optional[bool] = None
-        applied_at: Optional[date] = None
+        applied_at: Optional[str] = None
 
     def update_application(self, request:UpdateApplication):
         client = SupabaseConnection.get_client()
@@ -259,7 +259,3 @@ class PostRoutes(BaseRouter):
             return result
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
-        
-
-        
-    
