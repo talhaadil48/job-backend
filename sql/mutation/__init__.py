@@ -3,3 +3,9 @@ from .insert_candidate import InsertCandidate
 from .insert_application import InsertApplication
 from .insert_employeer import InsertEmployer
 from .insert_job import InsertJob
+from .delete_job import DeleteJobById
+from .delete_user import DeleteUserById
+from .update_user import UpdateUserById
+from .update_job import  UpdateJobById
+from .update_candidate import UpdateCandidateById
+from .update_employeer import UpdateEmployerById

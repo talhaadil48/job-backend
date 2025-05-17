@@ -8,7 +8,15 @@ from sql.mutation import (
     InsertUser,
     InsertEmployer,
     InsertApplication,
-    InsertCandidate
+    InsertCandidate,
+    DeleteJobById,
+    DeleteUserById,
+    UpdateUserById,
+    UpdateJobById,
+    UpdateEmployerById,
+    UpdateCandidateById
+    
+    
 )
 from .base import BaseRouter
 
@@ -21,6 +29,11 @@ class PostRoutes(BaseRouter):
         self.router.add_api_route("/employer", self.insert_employer, methods=["POST"])
         self.router.add_api_route("/application", self.insert_application, methods=["POST"])
         self.router.add_api_route("/candidate", self.insert_candidate, methods=["POST"])
+        self.router.add_api_route("/deluser", self.delete_user, methods=["POST"])
+        self.router.add_api_route("/deljob", self.delete_job, methods=["POST"])
+        self.router.add_api_route("/updateuser", self.update_user, methods=["POST"])
+        self.router.add_api_route("/updatejob", self.update_job, methods=["POST"])
+    
 
   
     class JobCreate(BaseModel):
@@ -47,7 +60,7 @@ class PostRoutes(BaseRouter):
         password_hash: str
         role: str
         is_blocked: bool = False
-        profile_picture_url: str | None = None
+        profile_picture_url: Optional[str] | None
   
     def insert_user(self, request:UserCreate):
         client = SupabaseConnection.get_client()
@@ -112,3 +125,119 @@ class PostRoutes(BaseRouter):
             return result
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+        
+        
+        
+    class DeleteJob(BaseModel):
+        job_id: str
+          
+
+    def delete_job(self, request:DeleteJob):
+        client = SupabaseConnection.get_client()
+        mutation_obj = DeleteJobById(client)
+        try:
+            result = mutation_obj.run(request.model_dump())
+            return result
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+        
+         
+    class DeleteUser(BaseModel):
+        user_id: str
+          
+
+    def delete_user(self, request:DeleteUser):
+        client = SupabaseConnection.get_client()
+        mutation_obj = DeleteUserById(client)
+        try:
+            result = mutation_obj.run(request.model_dump())
+            return result
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+        
+        
+    class UserUpdate(BaseModel):
+        user_id: str
+        name: Optional[str] = None
+        email: Optional[str] = None
+        password_hash: Optional[str] = None
+        role: Optional[str] = None
+        is_blocked: Optional[bool] = None
+        profile_picture_url: Optional[str] = None
+
+        # Candidate-specific fields
+        resume_url: Optional[str] = None
+        skills: Optional[List[str]] = None
+        experience_years: Optional[int] = None
+        education: Optional[str] = None
+        linkedin_url: Optional[str] = None
+        portfolio_url: Optional[str] = None
+
+        # Employer-specific fields
+        company_name: Optional[str] = None
+        company_website: Optional[str] = None
+        company_description: Optional[str] = None
+        company_logo_url: Optional[str] = None
+
+
+    def update_user(self, request: UserUpdate):
+        client = SupabaseConnection.get_client()
+
+        try:
+            input_data = request.model_dump(exclude_unset=True)
+
+            # Always update user table
+            user_data = {
+                k: v for k, v in input_data.items()
+                if k in {"name", "email", "password_hash", "role", "is_blocked", "profile_picture_url"}
+            }
+            user_data["user_id"] = input_data["user_id"]
+            UpdateUserById(client).run(user_data)
+
+            # Update candidate or employer table based on role
+            role = input_data.get("role")
+            if role == "candidate":
+                candidate_data = {
+                    k: v for k, v in input_data.items()
+                    if k in {"resume_url", "skills", "experience_years", "education", "linkedin_url", "portfolio_url"}
+                }
+                candidate_data["user_id"] = input_data["user_id"]
+                UpdateCandidateById(client).run(candidate_data)
+
+            elif role == "employer":
+                employer_data = {
+                    k: v for k, v in input_data.items()
+                    if k in {"company_name", "company_website", "company_description", "company_logo_url"}
+                }
+                employer_data["user_id"] = input_data["user_id"]
+                UpdateEmployerById(client).run(employer_data)
+
+            return {"status": "success"}
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+        
+    class JobUpdate(BaseModel):
+        job_id: str
+        title: Optional[str] = None
+        description: Optional[str] = None
+        type: Optional[str] = None
+        tags: Optional[List[str]] = None
+        salary: Optional[str] = None
+        deadline: Optional[str] = None  # Can convert to `date` if needed
+    def update_job(self, request:JobUpdate):
+        client = SupabaseConnection.get_client()
+        mutation_obj = UpdateJobById(client)
+        try:
+            result = mutation_obj.run(request.model_dump())
+            print(result)
+            return result
+        except Exception as e:
+            print(e)
+            raise HTTPException(status_code=500, detail=str(e))
+        
+
+        
+    

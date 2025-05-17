@@ -20,10 +20,10 @@ class Query(BaseSupabase):
         pass
 
     def run(self, input_params: Dict[str, Any]) -> Dict[str, Any]:
-        query_builder = self.get_query(input_params)
-        response = query_builder.execute()
+        response = self.get_query(input_params)
+        
         if response:
-            return {"data": response.data}
+            return response
         else:
             raise Exception(f"Supabase query error: {response.error.message}")
 

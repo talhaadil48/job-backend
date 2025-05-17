@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .post_points import PostRoutes
+from .get_points import GetRoutes
 
 app = FastAPI(title="Custom Backend Server")
 
@@ -17,4 +18,4 @@ app.add_middleware(
 # Registering routes
 # app.include_router(GetRoutes().get_router())
 app.include_router(PostRoutes().get_router())
-
+app.include_router(GetRoutes().get_router())
