@@ -14,7 +14,8 @@ from sql.mutation import (
     UpdateUserById,
     UpdateJobById,
     UpdateEmployerById,
-    UpdateCandidateById
+    UpdateCandidateById,
+    UpdateApplicationById
     
     
 )
@@ -33,6 +34,7 @@ class PostRoutes(BaseRouter):
         self.router.add_api_route("/deljob", self.delete_job, methods=["POST"])
         self.router.add_api_route("/updateuser", self.update_user, methods=["POST"])
         self.router.add_api_route("/updatejob", self.update_job, methods=["POST"])
+        self.router.add_api_route("/updateapplication", self.update_application, methods=["POST"])
     
 
   
@@ -96,6 +98,7 @@ class PostRoutes(BaseRouter):
         job_id: str
         resume_url: str
         message: Optional[str] = None
+        status: Optional[bool] = False
           
 
     def insert_application(self, request:ApplicationCreate):
@@ -236,6 +239,25 @@ class PostRoutes(BaseRouter):
             return result
         except Exception as e:
             print(e)
+            raise HTTPException(status_code=500, detail=str(e))
+
+
+    class UpdateApplication(BaseModel):
+        application_id: str
+        candidate_id: Optional[str] = None
+        job_id: Optional[str] = None
+        resume_url: Optional[str] = None
+        message: Optional[str] = None
+        status: Optional[bool] = None
+        applied_at: Optional[date] = None
+
+    def update_application(self, request:UpdateApplication):
+        client = SupabaseConnection.get_client()
+        mutation_obj = UpdateApplicationById(client)
+        try:
+            result = mutation_obj.run(request.model_dump())
+            return result
+        except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
         
 

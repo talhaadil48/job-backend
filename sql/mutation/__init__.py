@@ -9,3 +9,4 @@ from .update_user import UpdateUserById
 from .update_job import  UpdateJobById
 from .update_candidate import UpdateCandidateById
 from .update_employeer import UpdateEmployerById
+from .update_application import UpdateApplicationById

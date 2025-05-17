@@ -12,6 +12,7 @@ class InsertApplication(Mutation):
             "candidate_id": input_params["candidate_id"],
             "job_id": input_params["job_id"],
             "resume_url": input_params["resume_url"],
-            "message": input_params.get("message", None)
+            "message": input_params.get("message", None),
+            "status" : input_params.get("status", False),
         }
         return self.client.table("applications").insert(data)
