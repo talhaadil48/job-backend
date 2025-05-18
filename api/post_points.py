@@ -1,3 +1,5 @@
+import requests
+import pdfplumber
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
@@ -35,7 +37,7 @@ class PostRoutes(BaseRouter):
         self.router.add_api_route("/updateuser", self.update_user, methods=["POST"])
         self.router.add_api_route("/updatejob", self.update_job, methods=["POST"])
         self.router.add_api_route("/updateapplication", self.update_application, methods=["POST"])
-    
+        self.router.add_api_route("/extract_pdf_text", self.extract_pdf_text, methods=["POST"])
 
   
     class JobCreate(BaseModel):
@@ -259,3 +261,23 @@ class PostRoutes(BaseRouter):
             return result
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+
+    class ResumeRequest(BaseModel):
+        url: str
+
+    def extract_pdf_text(request: ResumeRequest):
+        try:
+            data = request.model_dump()
+            response = requests.get(request["url"])
+            with open("temp.pdf", "wb") as f:
+                f.write(response.content)
+
+            text = ""
+            with pdfplumber.open("temp.pdf") as pdf:
+                for page in pdf.pages:
+                    text += page.extract_text() or ""
+                    text += "\n"
+
+            return {"text": text.strip()}
+        except Exception as e:
+            return {"error": str(e)}
