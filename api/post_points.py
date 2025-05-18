@@ -98,7 +98,7 @@ class PostRoutes(BaseRouter):
         job_id: str
         resume_url: str
         message: Optional[str] = None
-        status: Optional[bool] = False
+        status: Optional[str] = "pending"
           
 
     def insert_application(self, request:ApplicationCreate):
@@ -118,7 +118,7 @@ class PostRoutes(BaseRouter):
         experience_years: Optional[int] = 0
         education: Optional[str] = None
         linkedin_url: Optional[str] = None
-        portfolio_url: Optional[str] = None
+        
         
     def insert_candidate(self, request:CandidateCreate):
         client = SupabaseConnection.get_client()
@@ -175,7 +175,7 @@ class PostRoutes(BaseRouter):
         experience_years: Optional[int] = None
         education: Optional[str] = None
         linkedin_url: Optional[str] = None
-        portfolio_url: Optional[str] = None
+    
 
         # Employer-specific fields
         company_name: Optional[str] = None
@@ -203,7 +203,7 @@ class PostRoutes(BaseRouter):
             if role == "candidate":
                 candidate_data = {
                     k: v for k, v in input_data.items()
-                    if k in {"resume_url", "skills", "experience_years", "education", "linkedin_url", "portfolio_url"}
+                    if k in {"resume_url", "skills", "experience_years", "education", "linkedin_url"}
                 }
                 candidate_data["user_id"] = input_data["user_id"]
                 UpdateCandidateById(client).run(candidate_data)
@@ -248,7 +248,7 @@ class PostRoutes(BaseRouter):
         job_id: Optional[str] = None
         resume_url: Optional[str] = None
         message: Optional[str] = None
-        status: Optional[bool] = None
+        status: Optional[str] = None
         applied_at: Optional[str] = None
 
     def update_application(self, request:UpdateApplication):

@@ -16,6 +16,6 @@ class InsertCandidate(Mutation):
             "experience_years": input_params.get("experience_years", None),
             "education": input_params.get("education", None),
             "linkedin_url": input_params.get("linkedin_url", None),
-            "portfolio_url": input_params.get("portfolio_url", None),
+           
         }
         return self.client.table("candidates").insert(data)
