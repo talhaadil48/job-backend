@@ -261,14 +261,13 @@ class PostRoutes(BaseRouter):
             return result
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
-
     class ResumeRequest(BaseModel):
         url: str
 
-    def extract_pdf_text(request: ResumeRequest):
+    def extract_pdf_text(self,request: ResumeRequest):
         try:
-            data = request.model_dump()
-            response = requests.get(request["url"])
+            # No need to dump model if you just want the url attribute
+            response = requests.get(request.url)
             with open("temp.pdf", "wb") as f:
                 f.write(response.content)
 
